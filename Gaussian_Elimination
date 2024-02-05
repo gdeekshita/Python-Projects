@@ -1,0 +1,58 @@
+""" 
+Author: Deekshita Gorrepati
+Date: Feb 1, 2024
+Purpose: Implementing Gaussian Elimination Forward Elimination and Backward Substitution
+"""
+
+import numpy as np 
+
+
+def forwardelimin(A, B, n):
+    """ 
+    Function: calculates matrix A and B after forward elimination 
+    Parameters: matrix A, matrix B, number of rows in matrices (n)
+    Returns: computed matrix A and B after forward elimination
+    """
+    for k in range(0, n-1): #go through range of all rows of matrix except last row
+        #go through the row under row k and create a multiplier that divides the elements in rows i and k
+        for i in range(k+1, n):
+            xmulti = A[i][k]/A[k][k]
+            #go through elements in both rows and subtract elements in row i by the multiplier 
+            for j in range(k, n):
+                A[i][j] = A[i][j] - (xmulti * A[k][j])
+            #apply multiplier to matrix B
+            B[i] = B[i] - (xmulti) * B[k]    
+    return A, B
+
+def backwardsub(U, B, n):
+    """ 
+    Function: calculates matrix X for unknowns using backward sub
+    Parameters: upper triangle of matrix A and matrix B from forward elimination 
+    Returns: 
+    """
+    #generate a matrix for the unknown x values
+    X = np.zeros((n,1))
+    
+    #calculate the value of x in the last row
+    X[n-1] = B[n-1]/U[n-1][n-1]
+    #start from the second to bottom row and iterate by -1
+    for i in range(n-1, -1, -1):
+        s = B[i]
+        for j in range(i+1, n):
+            s = s - U[i][j]*X[j]
+        #calculate the value of the x value in row i 
+        X[i] = np.round(s/U[i][i], 6)
+    return X
+            
+#define matrix A and matrix B and display up to 6 decimal places
+matrixA = np.array([[1, 3, 4], [4, 8, 1], [-2, -3, 2]], dtype=np.float64)
+matrixB = np.array([[30], [8], [14]], dtype=np.float64)
+
+#pull out the number of rows and columns of matrix A
+rows, column = matrixA.shape
+
+#call forward elimination function 
+uppertriangle, matrixB = forwardelimin(matrixA, matrixB, rows)
+X = backwardsub(uppertriangle, matrixB, rows)
+
+print("The solution of the system of equations is \n", X)
